@@ -1,0 +1,54 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pypi-mirror-gatekeeper"
+version = "1.0.0"
+description = "Automation logic for the organization's secure PyPI proxy."
+requires-python = ">=3.10"
+authors = [
+  { name = "Andreas Stenberg"},
+]
+# These are the dependencies required to RUN the mirror scripts
+dependencies = [
+    "requests>=2.31.0",
+    "PyYAML>=6.0.1",
+    "python-dateutil>=2.8.2",
+    "pip-audit>=2.7.0",
+    "twine>=5.0.0",
+    "pip-requirements-parser>=32.0.1",
+]
+
+[project.scripts]
+mirror-manager = "scripts.mirror_manager:main"
+
+[project.optional-dependencies]
+dev = [
+    "black",   # Formatting
+    "ruff",    # Linting
+    "pytest",  # Testing
+    "types-requests",
+    "types-PyYAML",
+    "types-python-dateutil"
+]
+
+# --- Tool Configuration ---
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+
+[tool.ruff]
+# Enable Pyflakes (`F`), pycodestyle (`E`, `W`), and isort (`I`)
+select = ["E", "F", "I", "B", "S"]
+# 'S' enables flake8-bandit for security checks on our own script
+ignore = []
+line-length = 88
+
+[tool.ruff.per-file-ignores]
+# Ignore print statements in the CLI script
+"scripts/mirror_manager.py" = ["T201"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

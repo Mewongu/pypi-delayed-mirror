@@ -1,0 +1,47 @@
+stages:
+  - validate
+  - sync
+  - audit
+
+default:
+  image: python:3.11
+  before_script:
+    # Install the project and its dependencies
+    - pip install --upgrade pip
+    - pip install -e .
+    # Verify all required tools are available
+    - pip --version
+    - pip-audit --version
+    - twine --version
+
+# 1. Validation for Pull Requests
+validate_pr:
+  stage: validate
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+  script:
+    - echo "Checking requirements syntax and simulation..."
+    # We run the script; you might want to add a --dry-run flag to the python script
+    # to avoid actual uploads during PRs, but for now we just rely on the fact
+    # that PRs usually don't have the CI_JOB_TOKEN permissions to upload to main registry
+    # or we explicitly block it via arguments.
+    - python scripts/mirror_manager.py --dry-run
+
+# 2. Main Mirroring Job (Runs on Main merge + Schedule)
+sync_packages:
+  stage: sync
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+  script:
+    - python scripts/mirror_manager.py
+
+# 3. Security Auditor (Runs on Schedule)
+# Checks existing packages for NEW vulnerabilities and deletes them if found
+audit_registry:
+  stage: audit
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+  script:
+    - echo "Auditing existing registry packages..."
+    - python scripts/mirror_manager.py audit

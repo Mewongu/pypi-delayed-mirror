@@ -1,0 +1,12 @@
+policy:
+  # How many days a package must be on public PyPI before we mirror it
+  min_age_days: 14
+
+# Packages listed here skip the Age and Vulnerability checks
+exceptions:
+  - package: "legacy-app-dependency"
+    version: "1.0.4"
+    reason: "Legacy system requires this despite CVE-2023-XXXX"
+  - package: "urgent-hotfix-lib"
+    version: "2.1.0"
+    reason: "Critical bug fix needed immediately, skipping 14 day wait"
