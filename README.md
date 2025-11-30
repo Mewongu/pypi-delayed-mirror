@@ -2,28 +2,47 @@
 
 This repository manages the organization's private Python Package Index. It acts as a **Quarantined Proxy** between the public PyPI and our internal environment.
 
-**Policies enforced by this system:**
-1.  **Maturity:** Packages must be at least **14 days old** on the public PyPI to be mirrored.
-2.  **Security:** Packages are scanned for CVEs before mirroring.
-3.  **Auditing:** Mirrored packages are re-scanned nightly; if a new vulnerability is discovered, the package is automatically removed (Quarantined).
+---
 
+## 📦 How to Request New Packages
+
+**Need a package added to our secure mirror?** Follow these steps:
+
+1. **Create a Pull Request** adding your package to [`requirements.txt`](requirements.txt)
+   ```bash
+   # Add your package with an exact version pin
+   your-package-name==1.2.3
+   ```
+
+2. **Important Requirements:**
+   - Use **exact version pins** only (e.g., `==1.2.3`, not `>=1.2.0`)
+   - Package must be **at least 14 days old** on PyPI (unless requesting an exception)
+   - Package must have **no known security vulnerabilities**
+
+3. **For urgent packages** (less than 14 days old), add an exception to [`config.yaml`](config.yaml):
+   ```yaml
+   exceptions:
+     - package: "your-urgent-package"
+       version: "1.0.0"
+       reason: "Critical bug fix needed immediately"
+   ```
+
+4. **Submit your PR** with a clear description of why the package is needed
+
+**Your package will be automatically mirrored** once the PR is merged and policies are satisfied!
 
 ---
 
-## ✅ Recent Improvements
+## 🛡️ Security Policies
 
-This codebase has undergone recent improvements to enhance its reliability, security, and maintainability:
-
-*   **Robust Dependency Management:** The CI/CD pipeline now uses `pip install -e .` for consistent and reliable dependency installation.
-*   **Improved Requirements Parsing:** The `requirements.txt` parsing has been fortified with `pip-requirements-parser` for accurate and secure handling of package specifications.
-*   **Efficient Audit Process:** The audit function now efficiently fetches package lists once, significantly reducing API calls and improving performance.
-*   **Comprehensive Test Suite:** A new, extensive test suite has been implemented, covering critical functionalities like package validation and locking mechanisms.
-*   **Race Condition Prevention:** A file-based locking mechanism is now in place during package uploads, ensuring data integrity and preventing concurrency issues.
-*   **Enhanced Code Quality:** General code quality has been improved with more specific exception handling and flexible file path management.
+**This system enforces the following policies:**
+1.  **Maturity:** Packages must be at least **14 days old** on public PyPI
+2.  **Security:** Packages are scanned for CVEs before mirroring  
+3.  **Auditing:** Mirrored packages are re-scanned nightly and removed if vulnerabilities are found
 
 ---
 
-## 🚀 For Developers: How to use this Index
+## 🚀 Using Packages from the Mirror
 
 To install packages from this secure mirror, configure your `pip` to point to the GitLab Package Registry.
 
@@ -117,3 +136,16 @@ The core logic is managed by the `mirror-manager` script.
     mirror-manager sync --dry-run
     mirror-manager audit --dry-run
     ```
+
+---
+
+## ✅ Recent Improvements
+
+This codebase has undergone recent improvements to enhance its reliability, security, and maintainability:
+
+*   **Robust Dependency Management:** The CI/CD pipeline now uses `pip install -e .` for consistent and reliable dependency installation.
+*   **Improved Requirements Parsing:** The `requirements.txt` parsing has been fortified with `pip-requirements-parser` for accurate and secure handling of package specifications.
+*   **Efficient Audit Process:** The audit function now efficiently fetches package lists once, significantly reducing API calls and improving performance.
+*   **Comprehensive Test Suite:** A new, extensive test suite has been implemented, covering critical functionalities like package validation and locking mechanisms.
+*   **Race Condition Prevention:** A file-based locking mechanism is now in place during package uploads, ensuring data integrity and preventing concurrency issues.
+*   **Enhanced Code Quality:** General code quality has been improved with more specific exception handling and flexible file path management.
